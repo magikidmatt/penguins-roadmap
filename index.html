@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐧 Fantasy Ocean Penguins - Magikid AI Robotics Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Model Viewer for Interactive 3D -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', 'Comic Sans MS', cursive;
+            background: linear-gradient(180deg, #E3F2FD 0%, #BBDEFB 50%, #90CAF9 100%);
+            min-height: 100vh;
+        }
+        
+        .font-display {
+            font-family: 'Fredoka One', 'Comic Sans MS', cursive;
+        }
+        
+        /* Progress Bar Animation */
+        .progress-fill {
+            transition: width 0.4s ease-out;
+        }
+        
+        /* Alert Box Animation */
+        @keyframes pulse-alert {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(255, 87, 34, 0); }
+        }
+        
+        .alert-box {
+            animation: pulse-alert 2s infinite;
+        }
+        
+        @keyframes bounce-in {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .bounce-in {
+            animation: bounce-in 0.6s ease-out forwards;
+        }
+        
+        /* Step Section Styles */
+        .step-section {
+            position: relative;
+            scroll-margin-top: 90px;
+        }
+
+        /* Step number badge */
+        .step-badge {
+            position: absolute;
+            top: -18px;
+            left: 24px;
+            z-index: 10;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .step-badge.completed {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A) !important;
+        }
+
+        .step-connector {
+            width: 4px;
+            height: 32px;
+            margin: 0 auto;
+            background: repeating-linear-gradient(
+                to bottom,
+                #90CAF9 0px,
+                #90CAF9 8px,
+                transparent 8px,
+                transparent 16px
+            );
+        }
+        
+        /* Card Styles */
+        .mission-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .mission-card:active {
+            transform: scale(0.98);
+        }
+
+        .mission-card.step-done {
+            border-color: #4CAF50 !important;
+        }
+        
+        /* Drag and Drop */
+        .drag-item {
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+        }
+        
+        .drag-item:active {
+            cursor: grabbing;
+        }
+        
+        .drop-zone {
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            background: #FFE0B2 !important;
+            border-color: #FF9800;
+            transform: scale(1.05);
+        }
+        
+        .dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+        
+        /* Checkbox Animation */
+        .gear-checkbox:checked + label {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        .gear-checkbox:checked + label .checkbox-icon {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .gear-checkbox:checked + label .checkbox-icon::after {
+            transform: scale(1);
+        }
+        
+        /* Penguin Badge */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confetti-fall 3s linear forwards;
+        }
+        
+        /* Touch-friendly targets */
+        .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        
+        /* Comparison Cards */
+        .teardrop {
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        }
+        
+        /* Sound Button Pulse */
+        @keyframes sound-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(255, 152, 0, 0); }
+        }
+        
+        .sound-btn {
+            animation: sound-pulse 2s infinite;
+        }
+        
+        /* Hidden Sound Modal */
+        .sound-modal {
+            display: none;
+        }
+        
+        .sound-modal.active {
+            display: flex;
+        }
+        
+        /* Model Viewer Customization */
+        model-viewer {
+            --poster-color: transparent;
+            --progress-bar-color: #FF9800;
+            --progress-bar-height: 4px;
+        }
+        
+        model-viewer::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(255,255,255,0.3));
+            pointer-events: none;
+        }
+        
+        /* Loading animation */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-bounce {
+            animation: bounce 1s infinite;
+        }
+
+        /* Activity cards */
+        .activity-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .activity-card.completed-activity {
+            background: #E8F5E9 !important;
+            border-color: #4CAF50 !important;
+        }
+        .activity-card.completed-activity p:first-child {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- Micro-Mission Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-display text-blue-600 text-lg">📚 Instructional Roadmap</span>
+                <span id="progress-text" class="font-bold text-orange-500">0 / 6 Steps</span>
+            </div>
+            <div class="w-full h-4 bg-blue-200 rounded-full overflow-hidden">
+                <div id="progress-fill" class="progress-fill h-full bg-gradient-to-r from-blue-500 to-orange-400 rounded-full" style="width: 0%"></div>
+            </div>
+            <!-- Step indicators -->
+            <div class="flex justify-between mt-2 px-1">
+                <div class="step-dot flex items-center gap-1" data-step="1">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Mystery</span>
+                </div>
+                <div class="step-dot flex items-center gap-1" data-step="2">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Meet</span>
+                </div>
+                <div class="step-dot flex items-center gap-1" data-step="3">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Gear Up</span>
+                </div>
+                <div class="step-dot flex items-center gap-1" data-step="4">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Code</span>
+                </div>
+                <div class="step-dot flex items-center gap-1" data-step="5">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Games</span>
+                </div>
+                <div class="step-dot flex items-center gap-1" data-step="6">
+                    <span class="w-3 h-3 rounded-full bg-blue-300 border-2 border-blue-400 step-circle"></span>
+                    <span class="text-xs text-gray-500 hidden sm:inline">Science</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 pt-28">
+        
+        <!-- Hero Section -->
+        <header class="text-center mb-10 bounce-in">
+            <h1 class="font-display text-4xl md:text-5xl text-blue-700 mb-4">
+                🐧 Fantasy Ocean Penguins
+            </h1>
+            <p class="text-xl text-blue-600 font-semibold">
+                Magikid AI Robotics Lab
+            </p>
+            <div class="mt-4 inline-block bg-orange-100 px-6 py-2 rounded-full">
+                <span class="text-orange-600 font-bold">⏱️ 30 Minutes</span>
+                <span class="mx-2 text-orange-400">|</span>
+                <span class="text-orange-600">Pre-K to Grade 1</span>
+            </div>
+        </header>
+
+        <!-- ======== STEP 1: THE MYSTERY ======== -->
+        <div class="step-connector"></div>
+        <section id="step-1" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-orange-500 to-red-500" id="badge-1">1</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-orange-300" id="card-1">
+                <!-- Hook Alert -->
+                <div class="alert-box bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-5 mb-5 shadow-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">🚨</span>
+                        <h2 class="font-display text-2xl text-white">THE COLD CASE MYSTERY!</h2>
+                    </div>
+                    <div class="bg-white/95 rounded-xl p-4 text-left">
+                        <p class="text-lg text-gray-700 leading-relaxed">
+                            <span class="text-xl">📬</span> Rookies! I just got a <strong class="text-red-500">TOP SECRET</strong> message from Antarctica!
+                        </p>
+                        <p class="text-lg text-gray-800 mt-3 leading-relaxed">
+                            There's a <strong class="text-blue-600">penguin egg</strong> that rolled away from its nest...
+                            <br>We need to help the penguin parents find it!
+                        </p>
+                        <div class="mt-4 text-center">
+                            <p class="text-base text-gray-600 italic">But first... we need to become penguins too!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mission 1: Waddle -->
+                <div class="bg-blue-50 rounded-2xl p-5">
+                    <h3 class="font-display text-xl text-blue-700 mb-3">🐧 Step 1: Waddle Like a Penguin!</h3>
+                    <p class="text-gray-700 mb-4">
+                        <strong>Do this:</strong> Stand up! Show your best penguin waddle!
+                        <br>Short steps. Side to side. Don't bump into other penguins!
+                    </p>
+                    <button onclick="completeStep(1)" class="w-full bg-green-500 hover:bg-green-600 text-white font-display text-xl py-4 rounded-2xl shadow-lg transition-all active:scale-95 touch-target">
+                        ✅ I Waddled!
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== STEP 2: MEET THE PENGUINS ======== -->
+        <div class="step-connector"></div>
+        <section id="step-2" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-blue-500 to-cyan-500" id="badge-2">2</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-blue-200" id="card-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">👁️</span>
+                    <h2 class="font-display text-2xl text-blue-700">Step 2: Meet the Penguin Family</h2>
+                </div>
+                
+                <!-- Video Placeholder -->
+                <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden mb-4">
+                    <div class="aspect-video flex items-center justify-center relative">
+                        <div class="text-center">
+                            <span class="text-6xl block mb-4">🎬</span>
+                            <p class="text-white text-xl font-semibold">Penguin POV Video</p>
+                            <p class="text-gray-400 mt-2">Swimming with penguins underwater!</p>
+                        </div>
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center cursor-pointer hover:bg-white/30 transition touch-target">
+                            <span class="text-white text-3xl">▶️</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interactive 3D Penguin Model -->
+                <div class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl p-4 mb-4 overflow-hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <p class="text-white font-semibold text-lg">🧊 3D Penguin Model</p>
+                            <p class="text-white/80 text-sm">👆 Touch & drag to spin | 🤏 Pinch to zoom!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative bg-gradient-to-b from-sky-200 to-white rounded-xl overflow-hidden" style="height: 350px;">
+                        <!-- Loading indicator -->
+                        <div id="model-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+                            <div class="text-center">
+                                <span class="text-5xl block mb-2 animate-bounce">🐧</span>
+                                <p class="text-blue-600 font-bold">Loading penguin...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive 3D Model Viewer -->
+                        <model-viewer 
+                            src="penguin.glb"
+                            alt="Interactive 3D Penguin Model"
+                            auto-rotate
+                            camera-controls
+                            touch-action="pan-y"
+                            shadow-intensity="1"
+                            shadow-softness="0.5"
+                            exposure="1.1"
+                            style="width: 100%; height: 100%; background: linear-gradient(180deg, #87CEEB 0%, #FFFFFF 100%);"
+                            id="penguin-3d"
+                        ></model-viewer>
+                        
+                        <!-- Touch hint overlay -->
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2">
+                            <span>👆</span>
+                            <span>Drag to spin • Pinch to zoom</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Fun fact about penguin -->
+                    <div class="mt-3 bg-white/20 backdrop-blur rounded-lg p-3">
+                        <p class="text-white text-sm">
+                            <span class="font-bold">🐧 Fun Fact:</span> Emperor penguins can dive deeper than any other bird - over 1,800 feet deep!
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Penguin Cards Grid -->
+                <div class="grid grid-cols-2 gap-4 mb-5">
+                    <div class="bg-blue-50 rounded-xl p-4 text-center">
+                        <span class="text-5xl block mb-2">🐧</span>
+                        <p class="font-bold text-blue-700">Emperor Penguin</p>
+                        <p class="text-sm text-gray-600 mt-1">Daddy Penguin is BIG!</p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-xl p-4 text-center">
+                        <span class="text-5xl block mb-2">🐣</span>
+                        <p class="font-bold text-yellow-700">Penguin Chick</p>
+                        <p class="text-sm text-gray-600 mt-1">Baby penguin is SMALL!</p>
+                    </div>
+                    <div class="bg-cyan-50 rounded-xl p-4 text-center">
+                        <span class="text-5xl block mb-2">🧊</span>
+                        <p class="font-bold text-cyan-700">Iceberg Home</p>
+                        <p class="text-sm text-gray-600 mt-1">Penguins live on ICE!</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-xl p-4 text-center">
+                        <span class="text-5xl block mb-2">🐟</span>
+                        <p class="font-bold text-orange-700">Fish Food</p>
+                        <p class="text-sm text-gray-600 mt-1">Yummy fish for dinner!</p>
+                    </div>
+                </div>
+
+                <button onclick="completeStep(2)" class="w-full bg-green-500 hover:bg-green-600 text-white font-display text-xl py-4 rounded-2xl shadow-lg transition-all active:scale-95 touch-target">
+                    ✅ I Met the Penguins!
+                </button>
+            </div>
+        </section>
+
+        <!-- ======== STEP 3: GEAR UP ======== -->
+        <div class="step-connector"></div>
+        <section id="step-3" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-green-500 to-teal-500" id="badge-3">3</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-green-200" id="card-3">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">🎒</span>
+                    <h2 class="font-display text-2xl text-blue-700">Step 3: Gear Up!</h2>
+                </div>
+                <p class="text-gray-600 mb-4">Tap each item when you're ready to become a penguin!</p>
+                
+                <div class="space-y-4" id="gear-checkboxes">
+                    <!-- Checkbox Items -->
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="gear-1" class="gear-checkbox sr-only" onchange="updateGearProgress()">
+                        <label for="gear-1" class="flex items-center gap-4 w-full bg-blue-50 rounded-xl p-4 cursor-pointer touch-target hover:bg-blue-100 transition">
+                            <span class="checkbox-icon w-10 h-10 border-4 border-blue-400 rounded-lg flex items-center justify-center text-white font-bold text-lg relative">
+                                <span class="absolute check-icon text-green-500 font-bold" style="transform: scale(0); transition: transform 0.2s;">✓</span>
+                            </span>
+                            <div>
+                                <p class="font-bold text-blue-700">👒 Penguin Hat</p>
+                                <p class="text-sm text-gray-500">Pat your head!</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="gear-2" class="gear-checkbox sr-only" onchange="updateGearProgress()">
+                        <label for="gear-2" class="flex items-center gap-4 w-full bg-orange-50 rounded-xl p-4 cursor-pointer touch-target hover:bg-orange-100 transition">
+                            <span class="checkbox-icon w-10 h-10 border-4 border-orange-400 rounded-lg flex items-center justify-center text-white font-bold text-lg relative">
+                                <span class="absolute check-icon text-green-500 font-bold" style="transform: scale(0); transition: transform 0.2s;">✓</span>
+                            </span>
+                            <div>
+                                <p class="font-bold text-orange-700">🦷 Penguin Wings</p>
+                                <p class="text-sm text-gray-500">Flap your arms!</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="gear-3" class="gear-checkbox sr-only" onchange="updateGearProgress()">
+                        <label for="gear-3" class="flex items-center gap-4 w-full bg-cyan-50 rounded-xl p-4 cursor-pointer touch-target hover:bg-cyan-100 transition">
+                            <span class="checkbox-icon w-10 h-10 border-4 border-cyan-400 rounded-lg flex items-center justify-center text-white font-bold text-lg relative">
+                                <span class="absolute check-icon text-green-500 font-bold" style="transform: scale(0); transition: transform 0.2s;">✓</span>
+                            </span>
+                            <div>
+                                <p class="font-bold text-cyan-700">👣 Penguin Feet</p>
+                                <p class="text-sm text-gray-500">Stomp your feet!</p>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" id="gear-4" class="gear-checkbox sr-only" onchange="updateGearProgress()">
+                        <label for="gear-4" class="flex items-center gap-4 w-full bg-purple-50 rounded-xl p-4 cursor-pointer touch-target hover:bg-purple-100 transition">
+                            <span class="checkbox-icon w-10 h-10 border-4 border-purple-400 rounded-lg flex items-center justify-center text-white font-bold text-lg relative">
+                                <span class="absolute check-icon text-green-500 font-bold" style="transform: scale(0); transition: transform 0.2s;">✓</span>
+                            </span>
+                            <div>
+                                <p class="font-bold text-purple-700">🔊 Penguin Voice</p>
+                                <p class="text-sm text-gray-500">Make a "HONK" sound!</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="gear-complete" class="hidden mt-4 bg-green-100 rounded-xl p-4 text-center">
+                    <p class="text-green-700 font-bold text-lg">🎉 All gear ready! You're a real Rookie Scientist!</p>
+                </div>
+                
+                <!-- Complete Step 3 Button -->
+                <button onclick="completeStep(3)" class="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-display text-xl py-4 rounded-2xl shadow-lg transition-all active:scale-95 touch-target">
+                    ✅ I'm Ready to Explore!
+                </button>
+            </div>
+        </section>
+
+        <!-- ======== STEP 4: CODE THE WADDLE ======== -->
+        <div class="step-connector"></div>
+        <section id="step-4" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-purple-500 to-pink-500" id="badge-4">4</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-purple-200" id="card-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">🎮</span>
+                    <h2 class="font-display text-2xl text-blue-700">Step 4: Code the Waddle!</h2>
+                </div>
+                <p class="text-gray-600 mb-4">Drag the steps to make the penguin waddle!</p>
+                
+                <!-- Code Blocks to Drag -->
+                <div class="bg-gray-100 rounded-xl p-4 mb-4">
+                    <p class="text-sm text-gray-500 mb-3 font-semibold">📋 DRAG THESE STEPS:</p>
+                    <div id="drag-items" class="flex flex-wrap gap-3">
+                        <div class="drag-item bg-orange-400 text-white font-bold px-4 py-3 rounded-xl shadow-md touch-target" draggable="true" data-step="step1">
+                            🦶 Step 1: Move Left
+                        </div>
+                        <div class="drag-item bg-blue-400 text-white font-bold px-4 py-3 rounded-xl shadow-md touch-target" draggable="true" data-step="step2">
+                            🦶 Step 2: Move Right
+                        </div>
+                        <div class="drag-item bg-green-400 text-white font-bold px-4 py-3 rounded-xl shadow-md touch-target" draggable="true" data-step="step3">
+                            🐧 Repeat!
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Drop Zone -->
+                <div class="bg-blue-50 border-4 border-dashed border-blue-300 rounded-xl p-4 mb-4 min-h-[120px]">
+                    <p class="text-sm text-blue-500 mb-3 font-semibold text-center">⬇️ DROP YOUR CODE HERE:</p>
+                    <div id="drop-zone" class="drop-zone flex flex-wrap gap-3 min-h-[80px] items-center justify-center">
+                        <p class="text-blue-300 text-lg">? ? ?</p>
+                    </div>
+                </div>
+                
+                <!-- Penguin Animation Preview -->
+                <div class="bg-gradient-to-b from-blue-200 to-white rounded-xl p-4 mb-4 text-center">
+                    <p class="text-sm text-gray-500 mb-2">🐧 PENGUIN PREVIEW:</p>
+                    <div id="penguin-preview" class="text-6xl transition-all duration-300">🐧</div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="resetCode()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-4 rounded-xl transition touch-target">
+                        🔄 Reset
+                    </button>
+                    <button onclick="runCode()" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 rounded-xl transition touch-target">
+                        ▶️ Run Code!
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== STEP 5: PENGUIN GAMES ======== -->
+        <div class="step-connector"></div>
+        <section id="step-5" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-orange-500 to-yellow-500" id="badge-5">5</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-orange-200" id="card-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">🏃</span>
+                    <h2 class="font-display text-2xl text-blue-700">Step 5: Penguin Games!</h2>
+                </div>
+                <p class="text-gray-600 mb-4">Complete all 3 penguin activities to unlock Step 6!</p>
+                
+                <div id="games-progress" class="w-full h-3 bg-orange-200 rounded-full overflow-hidden mb-4">
+                    <div id="games-fill" class="h-full bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-center text-sm text-orange-600 font-bold mb-4" id="games-count">0 / 3 Activities</p>
+
+                <div class="space-y-3">
+                    <div class="activity-card bg-orange-50 rounded-xl p-4 border-2 border-transparent" onclick="completeActivity(1)" id="activity-1">
+                        <p class="font-bold text-orange-700">🛷 Activity 1: Slide on Your Belly!</p>
+                        <p class="text-sm text-gray-600">Lie down and slide like a penguin!</p>
+                    </div>
+                    <div class="activity-card bg-blue-50 rounded-xl p-4 border-2 border-transparent" onclick="completeActivity(2)" id="activity-2">
+                        <p class="font-bold text-blue-700">🐟 Activity 2: Fish Toss Challenge!</p>
+                        <p class="text-sm text-gray-600">Toss bean bags into the "penguin mouth"!</p>
+                    </div>
+                    <div class="activity-card bg-green-50 rounded-xl p-4 border-2 border-transparent" onclick="completeActivity(3)" id="activity-3">
+                        <p class="font-bold text-green-700">🥚 Activity 3: Egg Roll Relay!</p>
+                        <p class="text-sm text-gray-600">Carefully roll the ball to your partner!</p>
+                    </div>
+                </div>
+
+                <div id="games-complete-msg" class="hidden mt-4 bg-green-100 rounded-xl p-4 text-center">
+                    <p class="text-green-700 font-bold text-lg">🎉 All penguin games complete!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== STEP 6: PENGUIN SCIENCE ======== -->
+        <div class="step-connector"></div>
+        <section id="step-6" class="step-section mb-8">
+            <div class="step-badge bg-gradient-to-br from-cyan-500 to-blue-600" id="badge-6">6</div>
+            <div class="mission-card rounded-3xl p-6 shadow-xl border-4 border-cyan-200" id="card-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-4xl">🧠</span>
+                    <h2 class="font-display text-2xl text-blue-700">Step 6: Penguin Science!</h2>
+                </div>
+                
+                <p class="text-xl text-gray-700 mb-6">
+                    <strong class="text-cyan-600">Why do penguins waddle?</strong><br>
+                    Because their legs are short and their bodies are ROUND!
+                </p>
+                
+                <!-- Hydrodynamics Comparison -->
+                <div class="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-2xl p-6 mb-6">
+                    <p class="text-center font-bold text-blue-700 text-lg mb-4">🔬 Water Shape Test!</p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <!-- Teardrop (Correct) -->
+                        <div class="text-center">
+                            <div class="w-32 h-40 mx-auto bg-gradient-to-b from-blue-400 to-blue-600 teardrop rounded-b-full flex items-end justify-center pb-4 mb-3">
+                                <span class="text-4xl">✅</span>
+                            </div>
+                            <p class="font-bold text-blue-700">TEARDROP</p>
+                            <p class="text-sm text-gray-600">Penguins are shaped like this!</p>
+                            <p class="text-xs text-green-600 mt-1">→ Water flows EASY!</p>
+                        </div>
+                        <!-- Square (Wrong) -->
+                        <div class="text-center">
+                            <div class="w-32 h-32 mx-auto bg-gradient-to-b from-red-400 to-red-600 rounded-xl flex items-center justify-center mb-3">
+                                <span class="text-4xl">❌</span>
+                            </div>
+                            <p class="font-bold text-red-700">SQUARE</p>
+                            <p class="text-sm text-gray-600">NOT like penguins!</p>
+                            <p class="text-xs text-red-600 mt-1">→ Water bumps into it!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Why Penguins Slide -->
+                <div class="bg-orange-50 rounded-xl p-4 mb-4">
+                    <p class="font-bold text-orange-700 mb-2">🛷 Why Penguins Slide:</p>
+                    <p class="text-gray-700">Sliding on their bellies is FASTER than walking! It's like a penguin sled on ice!</p>
+                </div>
+                
+                <!-- Why Penguins Huddle -->
+                <div class="bg-yellow-50 rounded-xl p-4 mb-5">
+                    <p class="font-bold text-yellow-700 mb-2">🤗 Why Penguins Huddle:</p>
+                    <p class="text-gray-700">They get cold! So they huddle together to stay warm - just like cuddling with a blanket!</p>
+                </div>
+
+                <button onclick="completeStep(6)" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-display text-xl py-4 rounded-2xl shadow-lg transition touch-target">
+                    🧠 I Understand Penguin Science!
+                </button>
+            </div>
+        </section>
+
+        <!-- ======== REWARD / LEVEL UP ======== -->
+        <div class="step-connector"></div>
+        <section id="reward" class="step-section mb-8 pb-12">
+            <div class="bg-gradient-to-b from-yellow-200 to-orange-200 rounded-3xl p-6 shadow-2xl border-4 border-yellow-400">
+                <div class="text-center mb-6">
+                    <span class="text-6xl float-animation inline-block">🎉</span>
+                    <h2 class="font-display text-4xl text-orange-600 mt-4">LEVEL UP!</h2>
+                    <p class="text-xl text-orange-500 mt-2">You completed all 6 Steps!</p>
+                </div>
+                
+                <!-- Digital Badge -->
+                <div class="bg-white rounded-3xl p-6 mb-6 text-center shadow-xl">
+                    <div class="w-40 h-40 mx-auto bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-2xl mb-4 float-animation">
+                        <span class="text-7xl">🐧</span>
+                    </div>
+                    <h3 class="font-display text-2xl text-blue-700">Rookie Explorer Badge</h3>
+                    <p class="text-gray-600 mt-2">Official Magikid Ocean Explorer!</p>
+                </div>
+                
+                <!-- Hidden Penguin Sounds Button -->
+                <button onclick="playPenguinSound()" class="sound-btn w-full bg-orange-500 hover:bg-orange-600 text-white font-display text-xl py-4 rounded-2xl shadow-lg transition touch-target mb-4">
+                    🔊 Click for Penguin Sounds!
+                </button>
+                
+                <!-- Penguin Facts -->
+                <div class="bg-white/80 backdrop-blur rounded-2xl p-4">
+                    <p class="font-bold text-blue-700 mb-3">📚 What You Learned:</p>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>✅ Penguins waddle because they have short legs</li>
+                        <li>✅ Penguins slide on their bellies to go fast</li>
+                        <li>✅ Penguins huddle together to stay warm</li>
+                        <li>✅ Penguins eat fish</li>
+                        <li>✅ Penguins live in Antarctica (very cold!)</li>
+                    </ul>
+                </div>
+                
+                <!-- Final Celebration -->
+                <div class="mt-6 text-center">
+                    <p class="text-xl text-orange-700 font-bold mb-4">
+                        Great work today, Rookies!
+                    </p>
+                    <button onclick="showConfetti()" class="bg-green-500 hover:bg-green-600 text-white font-display text-2xl py-6 px-8 rounded-2xl shadow-xl transition-all active:scale-95 touch-target">
+                        🐧 Waddle Out! →
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Penguin Sound Modal -->
+    <div id="sound-modal" class="sound-modal fixed inset-0 bg-black/80 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center">
+            <span class="text-8xl block mb-4">🐧</span>
+            <h3 class="font-display text-2xl text-blue-700 mb-4">Penguin Sounds!</h3>
+            
+            <div class="space-y-3">
+                <button onclick="playSound('honk')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl touch-target">
+                    🐧 HONK!
+                </button>
+                <button onclick="playSound('bray')" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-4 rounded-xl touch-target">
+                    🐧 HEE-HAW!
+                </button>
+                <button onclick="playSound('chatter')" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 rounded-xl touch-target">
+                    🐧 CHATTER!
+                </button>
+            </div>
+            
+            <button onclick="closeSoundModal()" class="mt-4 text-gray-500 font-bold touch-target">
+                Close ✕
+            </button>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+    <script>
+        // ====== Progress tracking ======
+        let completedSteps = new Set();
+        const totalSteps = 6;
+        let completedActivities = new Set();
+        const totalActivities = 3;
+
+        function updateProgress() {
+            const progress = (completedSteps.size / totalSteps) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = 
+                `${completedSteps.size} / ${totalSteps} Steps`;
+            
+            // Update step dots in progress bar
+            document.querySelectorAll('.step-dot').forEach(dot => {
+                const stepNum = parseInt(dot.dataset.step);
+                const circle = dot.querySelector('.step-circle');
+                if (completedSteps.has(stepNum)) {
+                    circle.classList.remove('bg-blue-300', 'border-blue-400');
+                    circle.classList.add('bg-green-400', 'border-green-500');
+                }
+            });
+            
+            if (completedSteps.size === totalSteps) {
+                document.getElementById('progress-text').textContent = '🎉 ALL STEPS DONE!';
+                document.getElementById('progress-fill').classList.remove('from-blue-500', 'to-orange-400');
+                document.getElementById('progress-fill').classList.add('from-green-400', 'to-yellow-400');
+            }
+        }
+
+        function completeStep(num) {
+            if (!completedSteps.has(num)) {
+                completedSteps.add(num);
+                
+                // Animate the badge
+                const badge = document.getElementById(`badge-${num}`);
+                if (badge) {
+                    badge.classList.add('completed');
+                    badge.textContent = '✓';
+                }
+                
+                // Animate the card
+                const card = document.getElementById(`card-${num}`);
+                if (card) {
+                    card.classList.add('step-done');
+                }
+                
+                updateProgress();
+                
+                // Scroll to next step
+                const stepIds = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5', 'step-6', 'reward'];
+                const currentIdx = stepIds.indexOf(`step-${num}`);
+                if (currentIdx < stepIds.length - 1) {
+                    setTimeout(() => {
+                        document.getElementById(stepIds[currentIdx + 1]).scrollIntoView({ behavior: 'smooth' });
+                    }, 400);
+                }
+            }
+        }
+
+        // ====== Step 3: Gear checklist ======
+        function updateGearProgress() {
+            const checkboxes = document.querySelectorAll('.gear-checkbox');
+            let checkedCount = 0;
+            
+            checkboxes.forEach(cb => {
+                const icon = cb.nextElementSibling.querySelector('.check-icon');
+                if (cb.checked) {
+                    icon.style.transform = 'scale(1)';
+                    checkedCount++;
+                } else {
+                    icon.style.transform = 'scale(0)';
+                }
+            });
+            
+            if (checkedCount === checkboxes.length) {
+                document.getElementById('gear-complete').classList.remove('hidden');
+            } else {
+                document.getElementById('gear-complete').classList.add('hidden');
+            }
+        }
+
+        // ====== Step 4: Drag and Drop ======
+        const dragItems = document.querySelectorAll('.drag-item');
+        const dropZone = document.getElementById('drop-zone');
+        const penguinPreview = document.getElementById('penguin-preview');
+        let droppedSteps = [];
+
+        dragItems.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', item.dataset.step);
+                item.classList.add('dragging');
+            });
+            
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+            
+            // Touch support
+            item.addEventListener('touchstart', handleTouchStart, { passive: false });
+            item.addEventListener('touchmove', handleTouchMove, { passive: false });
+            item.addEventListener('touchend', handleTouchEnd);
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const step = e.dataTransfer.getData('text/plain');
+            handleDrop(step);
+        });
+
+        function handleDrop(step) {
+            droppedSteps.push(step);
+            renderDropZone();
+        }
+
+        function renderDropZone() {
+            if (droppedSteps.length === 0) {
+                dropZone.innerHTML = '<p class="text-blue-300 text-lg">? ? ?</p>';
+            } else {
+                dropZone.innerHTML = droppedSteps.map(step => {
+                    const info = {
+                        'step1': '🦶 Left',
+                        'step2': '🦶 Right',
+                        'step3': '🔄 Repeat!'
+                    };
+                    return `<div class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg">${info[step]}</div>`;
+                }).join('');
+            }
+        }
+
+        function resetCode() {
+            droppedSteps = [];
+            renderDropZone();
+            penguinPreview.style.transform = 'scaleX(1)';
+            penguinPreview.textContent = '🐧';
+        }
+
+        function runCode() {
+            if (droppedSteps.length === 0) {
+                alert('Drag some steps first!');
+                return;
+            }
+            
+            // Animate penguin
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step >= droppedSteps.length) {
+                    clearInterval(interval);
+                    completeStep(4); // Mark Step 4 done when code runs
+                    return;
+                }
+                
+                const currentStep = droppedSteps[step];
+                if (currentStep === 'step1') {
+                    penguinPreview.style.transform = 'scaleX(-1) translateX(-20px)';
+                } else if (currentStep === 'step2') {
+                    penguinPreview.style.transform = 'scaleX(1) translateX(20px)';
+                } else if (currentStep === 'step3') {
+                    penguinPreview.style.transform = 'rotate(5deg)';
+                    setTimeout(() => penguinPreview.style.transform = 'rotate(-5deg)', 200);
+                    setTimeout(() => penguinPreview.style.transform = 'rotate(0deg)', 400);
+                }
+                
+                step++;
+            }, 500);
+        }
+
+        // Touch handling for mobile drag
+        let touchedItem = null;
+        let touchClone = null;
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            touchedItem = e.target.closest('.drag-item');
+            if (!touchedItem) return;
+            const touch = e.touches[0];
+            
+            touchClone = touchedItem.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.zIndex = '1000';
+            touchClone.style.opacity = '0.8';
+            touchClone.classList.add('dragging');
+            document.body.appendChild(touchClone);
+            
+            updateTouchClonePosition(touch);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!touchClone) return;
+            const touch = e.touches[0];
+            updateTouchClonePosition(touch);
+            
+            const dropRect = dropZone.getBoundingClientRect();
+            if (touch.clientX >= dropRect.left && touch.clientX <= dropRect.right &&
+                touch.clientY >= dropRect.top && touch.clientY <= dropRect.bottom) {
+                dropZone.classList.add('drag-over');
+            } else {
+                dropZone.classList.remove('drag-over');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (touchClone) {
+                document.body.removeChild(touchClone);
+                touchClone = null;
+            }
+            
+            dropZone.classList.remove('drag-over');
+            
+            if (!touchedItem) return;
+            const touch = e.changedTouches[0];
+            const dropRect = dropZone.getBoundingClientRect();
+            
+            if (touch.clientX >= dropRect.left && touch.clientX <= dropRect.right &&
+                touch.clientY >= dropRect.top && touch.clientY <= dropRect.bottom) {
+                handleDrop(touchedItem.dataset.step);
+            }
+            
+            touchedItem = null;
+        }
+
+        function updateTouchClonePosition(touch) {
+            if (touchClone) {
+                touchClone.style.left = (touch.clientX - 50) + 'px';
+                touchClone.style.top = (touch.clientY - 25) + 'px';
+            }
+        }
+
+        // ====== Step 5: Penguin Games ======
+        function completeActivity(num) {
+            if (!completedActivities.has(num)) {
+                completedActivities.add(num);
+                
+                const card = document.getElementById(`activity-${num}`);
+                if (card) {
+                    card.classList.add('completed-activity');
+                }
+                
+                // Update games progress bar
+                const progress = (completedActivities.size / totalActivities) * 100;
+                document.getElementById('games-fill').style.width = progress + '%';
+                document.getElementById('games-count').textContent = `${completedActivities.size} / ${totalActivities} Activities`;
+                
+                if (completedActivities.size === totalActivities) {
+                    document.getElementById('games-complete-msg').classList.remove('hidden');
+                    completeStep(5); // Mark Step 5 done when all 3 games are complete
+                }
+            }
+        }
+
+        // ====== Sound functionality ======
+        function playPenguinSound() {
+            document.getElementById('sound-modal').classList.add('active');
+        }
+
+        function closeSoundModal() {
+            document.getElementById('sound-modal').classList.remove('active');
+        }
+
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'honk') {
+                oscillator.frequency.value = 180;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'bray') {
+                oscillator.frequency.value = 200;
+                oscillator.type = 'square';
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                oscillator.frequency.linearRampToValueAtTime(200, audioContext.currentTime + 0.2);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'chatter') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.value = 800 + Math.random() * 400;
+                        osc.type = 'square';
+                        gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                        osc.start();
+                        osc.stop(audioContext.currentTime + 0.05);
+                    }, i * 80);
+                }
+            }
+        }
+
+        // ====== Confetti effect ======
+        function showConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        // ====== Initialize ======
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            
+            // Handle 3D model loading
+            const modelViewer = document.getElementById('penguin-3d');
+            const loadingIndicator = document.getElementById('model-loading');
+            
+            if (modelViewer) {
+                modelViewer.addEventListener('load', () => {
+                    loadingIndicator.style.display = 'none';
+                    console.log('Penguin 3D model loaded!');
+                });
+                
+                modelViewer.addEventListener('error', (e) => {
+                    loadingIndicator.innerHTML = `
+                        <div class="text-center">
+                            <span class="text-4xl block mb-2">😢</span>
+                            <p class="text-red-600 font-bold">Oops! Couldn't load penguin</p>
+                        </div>
+                    `;
+                    console.error('Model loading error:', e);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
