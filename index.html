@@ -6,8 +6,7 @@
     <title>🐧 Fantasy Ocean Penguins - Magikid AI Robotics Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Google Model Viewer for Interactive 3D -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <!-- YouTube iframe API for lazy loading -->
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -199,24 +198,6 @@
             display: flex;
         }
         
-        /* Model Viewer Customization */
-        model-viewer {
-            --poster-color: transparent;
-            --progress-bar-color: #FF9800;
-            --progress-bar-height: 4px;
-        }
-        
-        model-viewer::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(transparent, rgba(255,255,255,0.3));
-            pointer-events: none;
-        }
-        
         /* Loading animation */
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -349,57 +330,92 @@
                     <h2 class="font-display text-2xl text-blue-700">Step 2: Meet the Penguin Family</h2>
                 </div>
                 
-                <!-- Video Placeholder -->
-                <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden mb-4">
-                    <div class="aspect-video flex items-center justify-center relative">
-                        <div class="text-center">
-                            <span class="text-6xl block mb-4">🎬</span>
-                            <p class="text-white text-xl font-semibold">Penguin POV Video</p>
-                            <p class="text-gray-400 mt-2">Swimming with penguins underwater!</p>
+                <!-- YouTube Video Embed -->
+                <div class="rounded-2xl overflow-hidden mb-4 shadow-lg">
+                    <div class="aspect-video relative bg-gray-900" id="video-container">
+                        <!-- Thumbnail / Poster -->
+                        <div id="video-poster" class="absolute inset-0 cursor-pointer" onclick="loadVideo()">
+                            <img src="https://img.youtube.com/vi/QGlAtxe3GAA/maxresdefault.jpg" 
+                                 alt="Penguin Video Thumbnail" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.src='https://img.youtube.com/vi/QGlAtxe3GAA/hqdefault.jpg'">
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center hover:bg-black/20 transition">
+                                <div class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition">
+                                    <span class="text-red-500 text-4xl ml-1">▶</span>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-3 left-3 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                                🎬 Swimming with Penguins!
+                            </div>
                         </div>
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center cursor-pointer hover:bg-white/30 transition touch-target">
-                            <span class="text-white text-3xl">▶️</span>
-                        </div>
+                        <!-- YouTube iframe (loaded on click) -->
+                        <iframe id="video-iframe" class="w-full h-full absolute inset-0 hidden" 
+                                src="" 
+                                title="Penguin Underwater Video"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
                     </div>
                 </div>
                 
-                <!-- Interactive 3D Penguin Model -->
+                <!-- Animated Penguin (replaces 3D model for fast loading) -->
                 <div class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl p-4 mb-4 overflow-hidden">
                     <div class="flex items-center justify-between mb-2">
                         <div>
-                            <p class="text-white font-semibold text-lg">🧊 3D Penguin Model</p>
-                            <p class="text-white/80 text-sm">👆 Touch & drag to spin | 🤏 Pinch to zoom!</p>
+                            <p class="text-white font-semibold text-lg">🧊 Our Penguin Friend</p>
+                            <p class="text-white/80 text-sm">🐧 Tap the penguin to make it dance!</p>
                         </div>
                     </div>
                     
-                    <div class="relative bg-gradient-to-b from-sky-200 to-white rounded-xl overflow-hidden" style="height: 350px;">
-                        <!-- Loading indicator -->
-                        <div id="model-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
-                            <div class="text-center">
-                                <span class="text-5xl block mb-2 animate-bounce">🐧</span>
-                                <p class="text-blue-600 font-bold">Loading penguin...</p>
-                            </div>
+                    <div class="relative bg-gradient-to-b from-sky-200 to-white rounded-xl overflow-hidden flex items-center justify-center" style="height: 320px;" id="penguin-playground">
+                        <!-- Ice/snow floor -->
+                        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-sky-100 rounded-t-3xl"></div>
+                        <!-- Snowflakes -->
+                        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                            <div class="absolute text-2xl" style="top:10%; left:15%; animation: float 4s ease-in-out infinite;">❄</div>
+                            <div class="absolute text-xl" style="top:20%; left:75%; animation: float 5s ease-in-out infinite 1s;">❄</div>
+                            <div class="absolute text-2xl" style="top:5%; left:55%; animation: float 3.5s ease-in-out infinite 0.5s;">❄</div>
+                            <div class="absolute text-lg" style="top:15%; left:40%; animation: float 4.5s ease-in-out infinite 2s;">❄</div>
                         </div>
-                        
-                        <!-- Interactive 3D Model Viewer -->
-                        <model-viewer 
-                            src="penguin.glb"
-                            alt="Interactive 3D Penguin Model"
-                            auto-rotate
-                            camera-controls
-                            touch-action="pan-y"
-                            shadow-intensity="1"
-                            shadow-softness="0.5"
-                            exposure="1.1"
-                            style="width: 100%; height: 100%; background: linear-gradient(180deg, #87CEEB 0%, #FFFFFF 100%);"
-                            id="penguin-3d"
-                        ></model-viewer>
-                        
-                        <!-- Touch hint overlay -->
-                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm flex items-center gap-2">
-                            <span>👆</span>
-                            <span>Drag to spin • Pinch to zoom</span>
-                        </div>
+                        <!-- Animated SVG Penguin -->
+                        <svg id="svg-penguin" viewBox="0 0 200 280" class="w-48 h-64 cursor-pointer relative z-10 transition-transform" onclick="dancePenguin()" style="filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));">
+                            <!-- Body shadow -->
+                            <ellipse cx="100" cy="265" rx="45" ry="8" fill="rgba(0,0,0,0.1)"/>
+                            <!-- Body -->
+                            <ellipse cx="100" cy="185" rx="55" ry="70" fill="#1a1a2e"/>
+                            <!-- Belly -->
+                            <ellipse cx="100" cy="195" rx="38" ry="55" fill="white"/>
+                            <!-- Left wing -->
+                            <ellipse id="wing-left" cx="48" cy="175" rx="14" ry="40" fill="#1a1a2e" transform="rotate(15, 48, 175)"/>
+                            <!-- Right wing -->
+                            <ellipse id="wing-right" cx="152" cy="175" rx="14" ry="40" fill="#1a1a2e" transform="rotate(-15, 152, 175)"/>
+                            <!-- Left foot -->
+                            <ellipse cx="78" cy="255" rx="18" ry="8" fill="#ff8c00"/>
+                            <!-- Right foot -->
+                            <ellipse cx="122" cy="255" rx="18" ry="8" fill="#ff8c00"/>
+                            <!-- Head -->
+                            <circle cx="100" cy="110" r="38" fill="#1a1a2e"/>
+                            <!-- White face patches -->
+                            <ellipse cx="82" cy="118" rx="12" ry="15" fill="white" opacity="0.9"/>
+                            <ellipse cx="118" cy="118" rx="12" ry="15" fill="white" opacity="0.9"/>
+                            <!-- Eyes -->
+                            <circle cx="85" cy="112" r="6" fill="white"/>
+                            <circle cx="115" cy="112" r="6" fill="white"/>
+                            <circle cx="86" cy="111" r="3.5" fill="#1a1a2e"/>
+                            <circle cx="116" cy="111" r="3.5" fill="#1a1a2e"/>
+                            <!-- Eye shine -->
+                            <circle cx="87.5" cy="109.5" r="1.2" fill="white"/>
+                            <circle cx="117.5" cy="109.5" r="1.2" fill="white"/>
+                            <!-- Beak -->
+                            <polygon points="93,122 100,132 107,122" fill="#ff8c00"/>
+                            <!-- Cheek blush -->
+                            <ellipse cx="75" cy="125" rx="7" ry="5" fill="#ff9999" opacity="0.5"/>
+                            <ellipse cx="125" cy="125" rx="7" ry="5" fill="#ff9999" opacity="0.5"/>
+                            <!-- Magikid headband -->
+                            <rect x="62" y="88" width="76" height="8" rx="4" fill="#ff9800"/>
+                            <circle cx="100" cy="88" r="6" fill="#ff5722"/>
+                            <text x="100" y="91" text-anchor="middle" font-size="7" fill="white" font-weight="bold">M</text>
+                        </svg>
                     </div>
                     
                     <!-- Fun fact about penguin -->
@@ -1072,30 +1088,47 @@
             }
         }
 
+        // ====== Video lazy load ======
+        function loadVideo() {
+            const iframe = document.getElementById('video-iframe');
+            const poster = document.getElementById('video-poster');
+            iframe.src = 'https://www.youtube.com/embed/QGlAtxe3GAA?autoplay=1&rel=0&modestbranding=1';
+            iframe.classList.remove('hidden');
+            poster.classList.add('hidden');
+        }
+
+        // ====== Penguin dance animation ======
+        let isDancing = false;
+        function dancePenguin() {
+            if (isDancing) return;
+            isDancing = true;
+            const penguin = document.getElementById('svg-penguin');
+            const wingL = document.getElementById('wing-left');
+            const wingR = document.getElementById('wing-right');
+            let count = 0;
+            const dance = setInterval(() => {
+                if (count >= 8) {
+                    clearInterval(dance);
+                    penguin.style.transform = '';
+                    wingL.setAttribute('transform', 'rotate(15, 48, 175)');
+                    wingR.setAttribute('transform', 'rotate(-15, 152, 175)');
+                    isDancing = false;
+                    return;
+                }
+                // Waddle side to side
+                penguin.style.transform = count % 2 === 0 ? 'translateX(-8px) rotate(-3deg)' : 'translateX(8px) rotate(3deg)';
+                // Flap wings
+                const flapAngle = count % 2 === 0 ? 'rotate(-30, 48, 175)' : 'rotate(30, 48, 175)';
+                const flapAngleR = count % 2 === 0 ? 'rotate(30, 152, 175)' : 'rotate(-30, 152, 175)';
+                wingL.setAttribute('transform', flapAngle);
+                wingR.setAttribute('transform', flapAngleR);
+                count++;
+            }, 200);
+        }
+
         // ====== Initialize ======
         document.addEventListener('DOMContentLoaded', () => {
             updateProgress();
-            
-            // Handle 3D model loading
-            const modelViewer = document.getElementById('penguin-3d');
-            const loadingIndicator = document.getElementById('model-loading');
-            
-            if (modelViewer) {
-                modelViewer.addEventListener('load', () => {
-                    loadingIndicator.style.display = 'none';
-                    console.log('Penguin 3D model loaded!');
-                });
-                
-                modelViewer.addEventListener('error', (e) => {
-                    loadingIndicator.innerHTML = `
-                        <div class="text-center">
-                            <span class="text-4xl block mb-2">😢</span>
-                            <p class="text-red-600 font-bold">Oops! Couldn't load penguin</p>
-                        </div>
-                    `;
-                    console.error('Model loading error:', e);
-                });
-            }
         });
     </script>
 </body>
