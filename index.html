@@ -198,6 +198,21 @@
             display: flex;
         }
         
+        /* Floating background logos */
+        .bg-logo {
+            position: fixed;
+            opacity: 0.04;
+            z-index: 0;
+            pointer-events: none;
+        }
+        @keyframes float-logo {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        .bg-logo {
+            animation: float-logo 8s ease-in-out infinite;
+        }
+
         /* Loading animation */
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -223,11 +238,20 @@
     </style>
 </head>
 <body class="pb-20">
+    <!-- Floating background logos -->
+    <img src="magikidlogo.png" class="bg-logo" style="top: 15%; left: -5%; width: 180px; animation-delay: 0s;">
+    <img src="magikidlogo.png" class="bg-logo" style="top: 45%; right: -8%; width: 220px; animation-delay: 2s;">
+    <img src="magikidlogo.png" class="bg-logo" style="top: 75%; left: 5%; width: 150px; animation-delay: 4s;">
+    <img src="magikidlogo.png" class="bg-logo" style="top: 90%; right: 10%; width: 120px; animation-delay: 6s;">
+
     <!-- Micro-Mission Progress Bar -->
     <div id="progress-bar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-lg">
         <div class="max-w-4xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between mb-2">
-                <span class="font-display text-blue-600 text-lg">📚 Instructional Roadmap</span>
+                <div class="flex items-center gap-2">
+                    <img src="magikidlogo.png" alt="M" class="w-8 h-8 rounded">
+                    <span class="font-display text-blue-600 text-lg">📚 Instructional Roadmap</span>
+                </div>
                 <span id="progress-text" class="font-bold text-orange-500">0 / 6 Steps</span>
             </div>
             <div class="w-full h-4 bg-blue-200 rounded-full overflow-hidden">
@@ -268,6 +292,7 @@
         
         <!-- Hero Section -->
         <header class="text-center mb-10 bounce-in">
+            <img src="magikidlogo.png" alt="Magikid Logo" class="w-24 h-24 mx-auto mb-4 drop-shadow-lg">
             <h1 class="font-display text-4xl md:text-5xl text-blue-700 mb-4">
                 🐧 Fantasy Ocean Penguins
             </h1>
@@ -692,6 +717,7 @@
                 
                 <!-- Digital Badge -->
                 <div class="bg-white rounded-3xl p-6 mb-6 text-center shadow-xl">
+                    <img src="magikidlogo.png" alt="Magikid" class="w-20 h-20 mx-auto mb-3 drop-shadow">
                     <div class="w-40 h-40 mx-auto bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-2xl mb-4 float-animation">
                         <span class="text-7xl">🐧</span>
                     </div>
@@ -729,6 +755,13 @@
         </section>
         
     </main>
+
+    <!-- Footer with Logo -->
+    <footer class="text-center py-8 mt-8">
+        <img src="magikidlogo.png" alt="Magikid" class="w-16 h-16 mx-auto mb-3 opacity-70 drop-shadow">
+        <p class="text-blue-500/70 text-sm font-semibold">Magikid AI Robotics Lab</p>
+        <p class="text-blue-400/50 text-xs mt-1">Empowering Young Minds Through Robotics</p>
+    </footer>
 
     <!-- Penguin Sound Modal -->
     <div id="sound-modal" class="sound-modal fixed inset-0 bg-black/80 z-50 items-center justify-center p-4">
